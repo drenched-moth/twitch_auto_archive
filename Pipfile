@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 selenium = "*"
 beautifulsoup4 = "*"
+webdriver-manager = "*"
 
 [dev-packages]
 
