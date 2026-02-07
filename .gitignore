@@ -1,5 +1,6 @@
 last_video_id
 Pipfile.lock
+*.mp4
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
