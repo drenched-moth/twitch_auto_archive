@@ -1,5 +1,6 @@
 import subprocess
-import sys
+#import sys
+from datetime import date
 import os
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -48,7 +49,7 @@ except FileNotFoundError:
     print("No record of last video ID found. Assuming this is the first run.")
     last_video_id = None
 
-command = ["pipenv", "run", "yt-dlp", curr_url_essential]
+command = ["pipenv", "run", "yt-dlp", curr_url_essential, "-o", str(date.today())]
 flag_run = False
 
 if last_video_id != video_id:
