@@ -53,12 +53,13 @@ flag_run = False
 
 if last_video_id != video_id:
     try:
-        subprocess.run(command, check=True, capture_output=True, text=True)
+        #subprocess.run(command, check=True, capture_output=True, text=True)
+        subprocess.run(command, check=True, text=True)
         flag_run = True
     except subprocess.CalledProcessError as e:
         print(f"Error downloading video: {e}")
-        print(f"STDOUT: {e.stdout}", file=sys.stdout)
-        print(f"STDERR: {e.stderr}", file=sys.stderr)
+        #print(f"STDOUT: {e.stdout}", file=sys.stdout)
+        #print(f"STDERR: {e.stderr}", file=sys.stderr)
 
 if flag_run:
     with open(last_video_id_path, "w") as f:
