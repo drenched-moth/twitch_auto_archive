@@ -49,7 +49,7 @@ except FileNotFoundError:
     print("No record of last video ID found. Assuming this is the first run.")
     last_video_id = None
 
-command = ["pipenv", "run", "yt-dlp", curr_url_essential, "-o", str(date.today())]
+command = ["pipenv", "run", "yt-dlp", curr_url_essential, "-o", str(date.today()), "-t", "mkv"]
 flag_run = False
 
 if last_video_id != video_id:
