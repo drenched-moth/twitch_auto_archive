@@ -39,10 +39,14 @@ print(video_id)
 
 last_video_id_path = "./last_video_id"
 
-with open(last_video_id_path, "r") as f:
-    last_video_id = f.readline().strip()
-    print(f"ID of last video downloaded:")
-    print(last_video_id)
+try:
+    with open(last_video_id_path, "r") as f:
+        last_video_id = f.readline().strip()
+        print(f"ID of last video downloaded:")
+        print(last_video_id)
+except FileNotFoundError:
+    print("No record of last video ID found. Assuming this is the first run.")
+    last_video_id = None
 
 command = ["pipenv", "run", "yt-dlp", curr_url_essential]
 flag_run = False
