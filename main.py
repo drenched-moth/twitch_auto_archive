@@ -44,7 +44,7 @@ with open(last_video_id_path, "r") as f:
     print(f"ID of last video downloaded:")
     print(last_video_id)
 
-command = ["yt-dlp", curr_url_essential]
+command = ["pipenv", "run", "yt-dlp", curr_url_essential]
 flag_run = False
 
 if last_video_id != video_id:
