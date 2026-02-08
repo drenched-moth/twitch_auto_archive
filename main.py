@@ -8,9 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC  
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service as FirefoxService
-#from webdriver_manager.firefox import GeckoDriverManager
-
-channel_name = "eteicos_"
+from webdriver_manager.firefox import GeckoDriverManager
 
 # Parsing command line arguments
 options, arguments = getopt.getopt(os.sys.argv[1:], "c:", ["channel="])
@@ -18,14 +16,17 @@ for option, argument in options:
     if option in ("-c", "--channel"):
         channel_name = argument
 
+if not channel_name:
+    print("Error: Twitch channel name is required. Use -c or --channel to specify it.", file=sys.stderr)
+    sys.exit(1)
 
 #os.environ["PATH"] += os.pathsep + "/bin/"
 
 options = webdriver.FirefoxOptions()
 options.add_argument("-headless")
 #options.binary_location = "/bin/firefox"
-driver = webdriver.Firefox(options=options)
-#driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
+#driver = webdriver.Firefox(options=options)
+driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
 
 driver.get(f"https://www.twitch.tv/{channel_name}/videos?filter=archives&sort=time")
 #print(driver.current_url)
