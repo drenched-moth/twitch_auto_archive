@@ -1,7 +1,8 @@
 import subprocess
-#import sys
+import sys
 from datetime import date
 import os
+import getopt
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC  
@@ -10,7 +11,15 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 #from webdriver_manager.firefox import GeckoDriverManager
 
 channel_name = "eteicos_"
-os.environ["PATH"] += os.pathsep + "/bin/"
+
+# Parsing command line arguments
+options, arguments = getopt.getopt(os.sys.argv[1:], "c:", ["channel="])
+for option, argument in options:
+    if option in ("-c", "--channel"):
+        channel_name = argument
+
+
+#os.environ["PATH"] += os.pathsep + "/bin/"
 
 options = webdriver.FirefoxOptions()
 options.add_argument("-headless")
@@ -35,7 +44,7 @@ curr_url_essential = curr_url.split("?")[0]
 video_id = curr_url_essential.split("/")[-1]
 
 #print(curr_url_essential)
-print(f"ID of last video as detected:")
+print("ID of last video as detected:")
 print(video_id)
 
 last_video_id_path = "./last_video_id"
@@ -43,7 +52,7 @@ last_video_id_path = "./last_video_id"
 try:
     with open(last_video_id_path, "r") as f:
         last_video_id = f.readline().strip()
-        print(f"ID of last video downloaded:")
+        print("ID of last video downloaded:")
         print(last_video_id)
 except FileNotFoundError:
     print("No record of last video ID found. Assuming this is the first run.")
@@ -58,9 +67,10 @@ if last_video_id != video_id:
         subprocess.run(command, check=True, text=True)
         flag_run = True
     except subprocess.CalledProcessError as e:
-        print(f"Error downloading video: {e}")
-        #print(f"STDOUT: {e.stdout}", file=sys.stdout)
-        #print(f"STDERR: {e.stderr}", file=sys.stderr)
+        print("Download failed. Will not update last video ID.")
+        print(f"Error downloading video: {e}", file=sys.stderr)
+        print(f"STDOUT: {e.stdout}", file=sys.stdout)
+        print(f"STDERR: {e.stderr}", file=sys.stderr)
 
 if flag_run:
     with open(last_video_id_path, "w") as f:
