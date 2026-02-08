@@ -9,6 +9,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service as FirefoxService
 
+DEFAULT_OUTPUT_DIR = "./"
+output_dir = DEFAULT_OUTPUT_DIR
+channel_name = None
+
 # Parsing command line arguments
 options, arguments = getopt.getopt(os.sys.argv[1:], "c:o:", ["channel=", "output="])
 for option, argument in options:
@@ -20,7 +24,7 @@ for option, argument in options:
 if not channel_name:
     print("Error: Twitch channel name is required. Use -c or --channel to specify it.", file=sys.stderr)
     sys.exit(1)
-if output_dir and not os.path.isdir(output_dir):
+if output_dir == DEFAULT_OUTPUT_DIR and not os.path.isdir(output_dir):
     print(f"Error: Output directory '{output_dir}' does not exist.", file=sys.stderr)
     sys.exit(1)
 
@@ -34,10 +38,12 @@ WebDriverWait(driver, 10).until(
 )
 
 links_to_videos = driver.find_elements(By.TAG_NAME, "article")
-links_to_videos[0].click()
-curr_url = driver.current_url
-print(f"Full url detected as last video of user \"{channel_name}\":")
-print(curr_url)
+#links_to_videos[0].click()
+partial_link = links_to_videos[0].find_element(By.TAG_NAME, "a").get_attribute("href")
+curr_url = partial_link
+
+#curr_url = driver.current_url
+print(f"Partial url detected as last video of user \"{channel_name}\": {curr_url}")
 driver.quit()
 
 curr_url_essential = curr_url.split("?")[0]
@@ -58,6 +64,7 @@ except FileNotFoundError:
     last_video_id = None
 
 full_path = os.path.join(output_dir, str(date.today()))
+print(f"Full path for output file: {full_path}")
 command = ["pipenv", "run", "yt-dlp", curr_url_essential, "-o", full_path, "-t", "mkv"]
 flag_run = False
 
