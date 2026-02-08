@@ -20,7 +20,9 @@ for option, argument in options:
 if not channel_name:
     print("Error: Twitch channel name is required. Use -c or --channel to specify it.", file=sys.stderr)
     sys.exit(1)
-
+if output_dir and not os.path.isdir(output_dir):
+    print(f"Error: Output directory '{output_dir}' does not exist.", file=sys.stderr)
+    sys.exit(1)
 
 options = webdriver.FirefoxOptions()
 options.add_argument("-headless")
