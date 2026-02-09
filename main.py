@@ -1,4 +1,5 @@
 import subprocess
+import shutil
 import sys
 from datetime import date
 import os
@@ -7,9 +8,10 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC  
 from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.service import Service as FirefoxService
+#from selenium.webdriver.firefox.service import Service as FirefoxService
 
 DEFAULT_OUTPUT_DIR = "./"
+FORMAT = "mkv"
 output_dir = DEFAULT_OUTPUT_DIR
 channel_name = None
 
@@ -63,9 +65,11 @@ except FileNotFoundError:
     print("No record of last video ID found. Assuming this is the first run.")
     last_video_id = None
 
-full_path = os.path.join(output_dir, str(date.today()))
+#full_path = os.path.join(output_dir, str(date.today()))
+filename = f"{date.today()}.{FORMAT}"
+full_path = os.path.join(output_dir, filename)
 print(f"Full path for output file: {full_path}")
-command = ["pipenv", "run", "yt-dlp", curr_url_essential, "-o", full_path, "-t", "mkv"]
+command = ["pipenv", "run", "yt-dlp", curr_url_essential, "-o", str(date.today()), "-t", FORMAT]
 flag_run = False
 
 if last_video_id != video_id:
@@ -81,4 +85,4 @@ if last_video_id != video_id:
 if flag_run:
     with open(last_video_id_path, "w") as f:
         f.write(video_id)
-    
+    shutil.move(f"./{filename}", full_path)
