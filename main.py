@@ -68,7 +68,8 @@ except FileNotFoundError:
 #full_path = os.path.join(output_dir, str(date.today()))
 filename = f"{date.today()}.{FORMAT}"
 full_path = os.path.join(output_dir, filename)
-print(f"Full path for output file: {full_path}")
+print(f"Temporary filename for downloaded video: {filename}")
+print(f"Full path for output file after finished download: {full_path}")
 command = ["pipenv", "run", "yt-dlp", curr_url_essential, "-o", str(date.today()), "-t", FORMAT]
 flag_run = False
 
