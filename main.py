@@ -117,6 +117,8 @@ tmp_filename = os.path.join(DEFAULT_OUTPUT_DIR, f"{stream_date_obj}.{format}")
 ydl_opts = {
     'outtmpl': {'default': tmp_filename},
     'concurrent_fragment_downloads': 2,           
+    'progress_delta': 10.0,
+    'progress_with_newline': True
 }
 flag_run = False
 
