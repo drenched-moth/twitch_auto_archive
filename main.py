@@ -39,10 +39,10 @@ options.add_argument("-headless")
 driver = webdriver.Firefox(options=options)
 
 driver.get(f"https://www.twitch.tv/{channel_name}/videos?filter=archives&sort=time")
-#WebDriverWait(driver, 10).until(
-#    EC.presence_of_element_located((By.TAG_NAME, "article"))
-#)
-WebDriverWait(driver, 10).until(
+WebDriverWait(driver, 15).until(
+    EC.presence_of_element_located((By.TAG_NAME, "article"))
+)
+WebDriverWait(driver, 15).until(
     EC.presence_of_element_located((By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0"))
 )
 
@@ -76,18 +76,26 @@ if last_video_id == video_id:
 ## Avant de démarrer le download on veut vérifier que le live est terminé
 ## pour cela on peut sauvegarder la longueur de la vidéo et vérifier qu'elle n'a pas changé après quelques secondes (à voir s'il faut faire un sleep ou pas)
 
-article = driver.find_elements(By.TAG_NAME, "article")[0]
-stream_title = article.find_element(By.TAG_NAME, "h4").text
-print(f"Title of last video detected as: {stream_title}")
 
-video_length1 = article.find_element(By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0").text
+video_length1 = driver.find_elements(By.TAG_NAME, "article")[0].find_element(By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0").text
 print(f"Length of last video detected as: {video_length1}")
 
 driver.get(driver.current_url)
 
-WebDriverWait(driver, 10).until(
+WebDriverWait(driver, 15).until(
+    EC.presence_of_element_located((By.TAG_NAME, "article"))
+)
+WebDriverWait(driver, 15).until(
     EC.presence_of_element_located((By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0"))
 )
+WebDriverWait(driver, 15).until(
+    EC.presence_of_element_located((By.TAG_NAME, "h4"))
+)
+
+article = driver.find_elements(By.TAG_NAME, "article")[0]
+stream_title = article.find_element(By.TAG_NAME, "h4").text
+print(f"Title of last video detected as: {stream_title}")
+
 
 links_to_videos = driver.find_elements(By.TAG_NAME, "article")
 video_length2 = links_to_videos[0].find_element(By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0").text
