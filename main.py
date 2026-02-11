@@ -65,8 +65,8 @@ if video_length1 != video_length2:
     driver.quit()
     sys.exit(0)
 
-partial_link = links_to_videos[0].find_element(By.TAG_NAME, "a").get_attribute("href")
-curr_url = partial_link
+#partial_link = links_to_videos[0].find_element(By.TAG_NAME, "a").get_attribute("href")
+#curr_url = partial_link
 
 #curr_url = driver.current_url
 print(f"Partial url detected as last video of user \"{channel_name}\": {curr_url}")
