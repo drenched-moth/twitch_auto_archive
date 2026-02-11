@@ -75,8 +75,6 @@ if last_video_id == video_id:
 
 ## Avant de démarrer le download on veut vérifier que le live est terminé
 ## pour cela on peut sauvegarder la longueur de la vidéo et vérifier qu'elle n'a pas changé après quelques secondes (à voir s'il faut faire un sleep ou pas)
-# TODO: comme cela demande des ressources de charger 2 fois la page, il faudrait vérifier si la vidéo est nouvelle avant de faire le refresh. 
-# TODO: dans une structure similaire, dans l'image ou qqpart, il est indiqué une date de publication. Il faudrait utiliser cela plutôt que date.today() plus loin, pertinent pour les streams se terminant autour de minuit.
 
 video_length1 = driver.find_elements(By.TAG_NAME, "article")[0].find_element(By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0").text
 print(f"Length of last video detected as: {video_length1}")
@@ -100,14 +98,12 @@ if video_length1 != video_length2:
     print("Live stream is still ongoing. Will not attempt to download.")
     sys.exit(0)
 
-
-filename = f"{stream_date_obj}.{format}"
-full_path = os.path.join(output_dir, filename)
-print(f"Temporary filename for downloaded video: {filename}")
-print(f"Full path for output file after finished download: {full_path}")
+tmp_filename = os.path.join(DEFAULT_OUTPUT_DIR, f"{stream_date_obj}.{format}")
+# below should already be printed by yt-dlp
+#print(f"Temporary filename for downloaded video: {tmp_filename}")
 
 ydl_opts = {
-    'outtmpl': {'default': full_path},
+    'outtmpl': {'default': tmp_filename},
     'concurrent_fragment_downloads': 2,           
 }
 flag_run = False
@@ -115,13 +111,18 @@ flag_run = False
 if last_video_id != video_id:
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([curr_url])
+            info_dict = ydl.extract_info(curr_url)
+            video_title = info_dict['title']
         flag_run = True
     except Exception as e:
         print("Download failed. Will not update last video ID.")
         print(f"Error downloading video: {e}", file=sys.stderr)
 
+filename = f"{stream_date_obj} - {video_title}.{format}"
+full_path = os.path.join(output_dir, filename)
+print(f"Full path for output file after finished download: {full_path}")
+
 if flag_run:
     with open(last_video_id_path, "w") as f:
         f.write(video_id)
-#    shutil.move(f"./{filename}", full_path)
+    shutil.move(tmp_filename, full_path)
