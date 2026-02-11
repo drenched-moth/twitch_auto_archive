@@ -40,7 +40,31 @@ WebDriverWait(driver, 10).until(
 )
 
 links_to_videos = driver.find_elements(By.TAG_NAME, "article")
-#links_to_videos[0].click()
+partial_link = links_to_videos[0].find_element(By.TAG_NAME, "a").get_attribute("href")
+curr_url = partial_link
+
+print(f"Partial url detected as last video of user \"{channel_name}\": {curr_url}")
+links_to_videos = driver.find_elements(By.TAG_NAME, "article")
+
+## Avant de démarrer le download on veut vérifier que le live est terminé
+## pour cela on peut sauvegarder la longueur de la vidéo et vérifier qu'elle n'a pas changé après quelques secondes (à voir s'il faut faire un sleep ou pas)
+
+video_length1 = links_to_videos[0].find_element(By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0").text
+print(f"Length of last video detected as: {video_length1}")
+
+driver.get(driver.current_url)
+WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.TAG_NAME, "article"))
+)
+
+
+video_length2 = driver.find_elements(By.TAG_NAME, "article")[0].find_element(By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0").text
+print(f"Length of last video detected as: {video_length2}")
+if video_length1 != video_length2:
+    print("Live stream is still ongoing. Will not attempt to download.")
+    driver.quit()
+    sys.exit(0)
+
 partial_link = links_to_videos[0].find_element(By.TAG_NAME, "a").get_attribute("href")
 curr_url = partial_link
 
