@@ -92,9 +92,9 @@ WebDriverWait(driver, 15).until(
     EC.presence_of_element_located((By.TAG_NAME, "h4"))
 )
 
-#article = driver.find_elements(By.TAG_NAME, "article")[0]
-#stream_title = article.find_element(By.TAG_NAME, "h4").text
-#print(f"Title of last video detected as: {stream_title}")
+article = driver.find_elements(By.TAG_NAME, "article")[0]
+stream_title = article.find_element(By.TAG_NAME, "h4").text
+print(f"Title of last video detected as: {stream_title}")
 
 
 links_to_videos = driver.find_elements(By.TAG_NAME, "article")
@@ -125,16 +125,13 @@ if last_video_id != video_id:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(curr_url)
             video_title = info_dict['title']
-        while "untitled broadcast" in video_title.lower():
-            with yt_dlp.YoutubeDL() as ydl:
-                video_title = ydl.extract_info(curr_url, download=False)['title']
         flag_run = True
         print(f"AHAHAHAHAHAH {video_title} ASDHSHAAHAH")
     except Exception as e:
         print("Download failed. Will not update last video ID.")
         print(f"Error downloading video: {e}", file=sys.stderr)
 
-stream_title = video_title
+#stream_title = video_title
 filename = f"{stream_date_obj} - {stream_title}.{format}"
 full_path = os.path.join(output_dir, filename)
 print(f"Full path for output file after finished download: {full_path}")
