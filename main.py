@@ -42,6 +42,8 @@ WebDriverWait(driver, 10).until(
 
 ## Avant de démarrer le download on veut vérifier que le live est terminé
 ## pour cela on peut sauvegarder la longueur de la vidéo et vérifier qu'elle n'a pas changé après quelques secondes (à voir s'il faut faire un sleep ou pas)
+# TODO: comme cela demande des ressources de charger 2 fois la page, il faudrait vérifier si la vidéo est nouvelle avant de faire le refresh. 
+# TODO: dans une structure similaire, dans l'image ou qqpart, il est indiqué une date de publication. Il faudrait utiliser cela plutôt que date.today() plus loin, pertinent pour les streams se terminant autour de minuit.
 
 video_length1 = driver.find_elements(By.TAG_NAME, "article")[0].find_element(By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0").text
 print(f"Length of last video detected as: {video_length1}")
