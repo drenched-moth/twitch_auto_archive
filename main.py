@@ -126,7 +126,6 @@ if last_video_id != video_id:
             info_dict = ydl.extract_info(curr_url)
             video_title = info_dict['title']
         flag_run = True
-        print(f"AHAHAHAHAHAH {video_title} ASDHSHAAHAH")
     except Exception as e:
         print("Download failed. Will not update last video ID.")
         print(f"Error downloading video: {e}", file=sys.stderr)
