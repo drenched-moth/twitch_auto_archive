@@ -97,9 +97,9 @@ try:
     WebDriverWait(driver, 15).until(
         EC.presence_of_element_located((By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0"))
     )
-    WebDriverWait(driver, 15).until(
-        EC.presence_of_element_located((By.TAG_NAME, "h4"))
-    )
+    #WebDriverWait(driver, 15).until(
+    #    EC.presence_of_element_located((By.TAG_NAME, "h4"))
+    #)
 except Exception as e:
     print("ABORTING, Error while waiting for element.", file=sys.stderr)
     print(e)
