@@ -109,8 +109,8 @@ except Exception as e:
 
 
 article = driver.find_elements(By.TAG_NAME, "article")[0]
-stream_title = article.find_element(By.TAG_NAME, "h4").text
-print(f"Title of last video detected as: {stream_title}")
+#stream_title = article.find_element(By.TAG_NAME, "h4").text
+#print(f"Title of last video detected as: {stream_title}")
 
 
 links_to_videos = driver.find_elements(By.TAG_NAME, "article")
@@ -149,7 +149,7 @@ if last_video_id != video_id:
         print("Download failed. Will not update last video ID.")
         print(f"Error downloading video: {e}", file=sys.stderr)
 
-#stream_title = video_title
+stream_title = video_title
 filename = f"{stream_date_obj} - {stream_title}.{format}"
 full_path = os.path.join(output_dir, filename)
 print(f"Full path for output file after finished download: {full_path}")
