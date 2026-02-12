@@ -119,12 +119,13 @@ print(f"Length of last video detected as: {video_length2}")
 
 stream_date = links_to_videos[0].find_elements(By.TAG_NAME, "img")[-1].get_attribute("title")
 stream_date_obj = datetime.strptime(stream_date, "%b %d, %Y").date()
-print(f"Found date of last video: {stream_date} -> {stream_date_obj}")
 
 driver.quit()
 if video_length1 != video_length2:
     print("Live stream is still ongoing. Will not attempt to download.")
     sys.exit(0)
+
+print(f"Found date of last video: {stream_date} -> {stream_date_obj}")
 
 tmp_filename = os.path.join(DEFAULT_OUTPUT_DIR, f"{stream_date_obj}.{format}")
 # below should already be printed by yt-dlp
