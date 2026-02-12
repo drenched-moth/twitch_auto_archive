@@ -39,12 +39,20 @@ options.add_argument("-headless")
 driver = webdriver.Firefox(options=options)
 
 driver.get(f"https://www.twitch.tv/{channel_name}/videos?filter=archives&sort=time")
-WebDriverWait(driver, 15).until(
-    EC.presence_of_element_located((By.TAG_NAME, "article"))
-)
-WebDriverWait(driver, 15).until(
-    EC.presence_of_element_located((By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0"))
-)
+# the waits tend to crash, so we wrap them
+try:
+    WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.TAG_NAME, "article"))
+    )
+    WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0"))
+    )
+except Exception as e:
+    print("ABORTING, Error while waiting for element.", file=sys.stderr)
+    print(e)
+    driver.quit()
+    sys.exit(1)
+
 
 links_to_videos = driver.find_elements(By.TAG_NAME, "article")
 partial_link = links_to_videos[0].find_element(By.TAG_NAME, "a").get_attribute("href")
@@ -65,7 +73,7 @@ try:
         last_video_id = f.readline().strip()
         print(f"ID of last video downloaded: {last_video_id}")
 except FileNotFoundError:
-    print("No record of last video ID found. Assuming this is the first run.")
+    print("No record of last video ID found. Assuming this is the first run.", file=sys.stderr)
     last_video_id = None
 
 if last_video_id == video_id:
@@ -82,15 +90,23 @@ print(f"Length of last video detected as: {video_length1}")
 
 driver.get(driver.current_url)
 
-WebDriverWait(driver, 15).until(
-    EC.presence_of_element_located((By.TAG_NAME, "article"))
-)
-WebDriverWait(driver, 15).until(
-    EC.presence_of_element_located((By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0"))
-)
-WebDriverWait(driver, 15).until(
-    EC.presence_of_element_located((By.TAG_NAME, "h4"))
-)
+try:
+    WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.TAG_NAME, "article"))
+    )
+    WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "ScMediaCardStatWrapper-sc-anph5i-0"))
+    )
+    WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.TAG_NAME, "h4"))
+    )
+except Exception as e:
+    print("ABORTING, Error while waiting for element.", file=sys.stderr)
+    print(e)
+    driver.quit()
+    sys.exit(1)
+
+
 
 article = driver.find_elements(By.TAG_NAME, "article")[0]
 stream_title = article.find_element(By.TAG_NAME, "h4").text
