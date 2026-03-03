@@ -1,3 +1,5 @@
+# Twitch auto archival tool
+## Why this project ?
 This is a fairly simple script which allows to simplify a homemade auto_archival of twitch VODs.
 
 ## How to use it
