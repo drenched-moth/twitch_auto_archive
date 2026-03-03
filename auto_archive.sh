@@ -2,7 +2,6 @@
 # pipefail arrête le script si cmd1 dans cmd1 | jq cause une erreur, évitant des comportement indet 
 set -euo pipefail
 
-
 cleanup() {
 	rm -rf "$tmpdir"
 }
@@ -55,7 +54,6 @@ mkdir -p "$archive_dir"
 # filename is actually path + filename
 filename=$(~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --print filename -N 2 --progress-delta 15 --newline -o "$tmpdir/video.%(ext)s")
 ext="${filename##*.}"
-#echo "$filename"
 ~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id -N 4 --progress-delta 15 --no-part --newline --verbose -o "$tmpdir/video.%(ext)s" 
 echo "$video_id" > last_video_id 
 echo "$data" > "$archive_dir/metadata.json"
