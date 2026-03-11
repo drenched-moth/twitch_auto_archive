@@ -22,10 +22,12 @@ if echo "$raw_data" | jq -e 'isempty(.data[])' >/dev/null ; then
 	exit 1
 fi
 user_id=$(echo "$raw_data" | jq '.data[].id | tonumber')
+current_download_file="downloading_$user_id"
 
 # If currently live -> download
 [ $(./twitch api get /streams -q user_id=$user_id | jq 'isempty(.data[])') = true ] && echo "Not currently streaming" && exit 1
 echo "Currently streaming"
+[ ! -f "$current_download_file" ] && echo "Already downloading" && exit 1
 
 # Getting channel's last stream data
 raw_data=$(./twitch api get /videos -q type=archive -q first=1 -q user_id=$user_id)
@@ -55,9 +57,12 @@ mkdir -p "$archive_dir"
 # filename is actually path + filename
 filename=$(~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --print filename -N 2 --progress-delta 15 --newline -o "$tmpdir/video.%(ext)s")
 ext="${filename##*.}"
+#touch "$current_download_file"
+echo "$channel" > "$current_download_file"
 ~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --live-from-start --progress-delta 15 --no-part --newline --verbose -o "$tmpdir/video.%(ext)s" 
 echo "$video_id" > last_video_id 
 echo "$data" > "$archive_dir/metadata.json"
 mv "$filename" "$archive_dir/video.$ext" -v
+rm -f "$current_download_file"
 
 trap cleanup EXIT
