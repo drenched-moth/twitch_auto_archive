@@ -48,6 +48,7 @@ echo "ID=$video_id"
 # Setup before downloading new video
 tmpdir=$(mktemp -d -t twitch-archive-XXXXXX)
 
+output_path="$output_path/$channel"
 archive_dir="$output_path/$creation_date""_$video_id"
 mkdir -p "$archive_dir"
 
