@@ -13,19 +13,29 @@ if [ -z "$channel" ] || [ -z "$output_path" ]; then
 	exit 1
 fi
 
-echo "Getting last stream of user $channel"
-
-# Getting id of channel (necessary for videos api call)
-raw_data=$(./twitch api get /users -q login=$channel)
-if echo "$raw_data" | jq -e 'isempty(.data[])' >/dev/null ; then
-	echo "Error fetching user's id" 
-	exit 1
+channel_info_file="id_$channel"
+if [ ! -f "$channel_info_file" ] ; then
+	echo "Getting id of channel $channel"
+	# Getting id of channel (necessary for videos api call)
+	raw_data=$(./twitch api get /users -q login=$channel)
+	if echo "$raw_data" | jq -e 'isempty(.data[])' >/dev/null ; then
+		echo "Error fetching user's id" 
+		exit 1
+	fi
+	echo "$raw_data" > "$channel_info_file"
+else
+	raw_data=$(cat "$channel_info_file")
 fi
-user_id=$(echo "$raw_data" | jq '.data[].id | tonumber')
 
-# If currently live -> abort
-[ $(./twitch api get /streams -q user_id=$user_id | jq 'isempty(.data[])') = false ] && echo "Currently streaming" && exit 1
-echo "Not currently streaming"
+user_id=$(echo "$raw_data" | jq '.data[].id | tonumber')
+current_download_file="downloading_$user_id"
+
+echo -n "Checking if $channel is live : "
+# If currently live -> download
+[ $(./twitch api get /streams -q user_id=$user_id | jq 'isempty(.data[])') = true ] && echo "Not currently streaming" && exit 1
+echo -n "Currently streaming"
+[ ! -f "$current_download_file" ] && echo " and already downloading" && exit 1
+echo " starting download of current stream from the beginning"
 
 # Getting channel's last stream data
 raw_data=$(./twitch api get /videos -q type=archive -q first=1 -q user_id=$user_id)
@@ -53,11 +63,15 @@ archive_dir="$output_path/$creation_date""_$video_id"
 mkdir -p "$archive_dir"
 
 # filename is actually path + filename
-filename=$(~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --print filename -N 2 --progress-delta 15 --newline -o "$tmpdir/video.%(ext)s")
+filename=$(~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --print filename --progress-delta 15 --newline -o "$tmpdir/video.%(ext)s")
 ext="${filename##*.}"
-~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id -N 4 --progress-delta 15 --no-part --newline --verbose -o "$tmpdir/video.%(ext)s" 
+echo "$channel" > "$current_download_file"
+~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --live-from-start --progress-delta 15 --no-part --newline --verbose -o "$tmpdir/video.%(ext)s" 
 echo "$video_id" > last_video_id 
 echo "$data" > "$archive_dir/metadata.json"
 mv "$filename" "$archive_dir/video.$ext" -v
+rm -f "$current_download_file"
+
+echo "Stream archived in $archive_dir"
 
 trap cleanup EXIT
