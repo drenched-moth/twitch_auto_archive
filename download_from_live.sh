@@ -37,7 +37,7 @@ current_download_file="downloading_$user_id"
 # If currently live -> download
 [ $(./twitch api get /streams -q user_id=$user_id | jq 'isempty(.data[])') = true ] && log "Not currently streaming" && exit 1
 log "Currently streaming"
-[ ! -f "$current_download_file" ] && log "Already downloading" && exit 1
+[ -f "$current_download_file" ] && log "Already downloading" && exit 1
 log "Starting download of current stream from the beginning"
 
 # Getting channel's last stream data
@@ -72,7 +72,7 @@ echo "$video_id" > last_video_id
 # echo "$data" > "$archive_dir/metadata.json"
 echo "$data" > "$tmpdir/metadata.json"
 # mv "$filename" "$archive_dir/video.$ext" -v
-# rm -f "$current_download_file"
+rm -f "$current_download_file"
 
 log "All data in $tmpdir"
 
