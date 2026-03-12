@@ -27,7 +27,7 @@ tmpdir=$(mktemp -d -t twitch-archive-XXXXXX)
 
 # téléchargement
 log "Downloading latest VOD"
-log "$SCRIPT_DIR/download_from_live.sh" "$CHANNEL" "$OUTPUT_PATH" "$tmpdir"
+"$SCRIPT_DIR/download_from_live.sh" "$CHANNEL" "$OUTPUT_PATH" "$tmpdir"
 
 log "Download finished"
 
