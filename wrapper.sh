@@ -12,7 +12,7 @@ if [ -z "$CHANNEL" ] || [ -z "$OUTPUT_PATH" ] || [ -z "$UPLOAD_CHANNEL" ]; then
     exit 1
 fi
 
-LOGFILE="$SCRIPT_DIR/archive.log"
+LOGFILE="$SCRIPT_DIR/$CHANNEL.log"
 exec >>"$LOGFILE" 2>&1
 
 SCRIPT_NAME=$(basename "$0")
