@@ -20,8 +20,8 @@ source "$(dirname "$0")/log.sh"
 
 
 log "Starting archive pipeline for $CHANNEL"
-log "Using temporary directory $tmpdir for intermediate files"
 tmpdir=$(mktemp -d -t twitch-archive-XXXXXX)
+log "Using temporary directory $tmpdir for intermediate files"
 
 cleanup() {
     log "Cleaning up temporary directory"
