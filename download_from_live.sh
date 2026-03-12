@@ -34,12 +34,12 @@ fi
 user_id=$(echo "$raw_data" | jq '.data[].id | tonumber')
 current_download_file="downloading_$user_id"
 
-log -n "Checking if $channel is live : "
+log "Checking if $channel is live : "
 # If currently live -> download
-[ $(./twitch api get /streams -q user_id=$user_id | jq 'isempty(.data[])') = true ] && echo "Not currently streaming" && exit 1
-echo -n "Currently streaming"
-[ ! -f "$current_download_file" ] && echo " and already downloading" && exit 1
-echo " starting download of current stream from the beginning"
+[ $(./twitch api get /streams -q user_id=$user_id | jq 'isempty(.data[])') = true ] && log "Not currently streaming" && exit 1
+log "Currently streaming"
+[ ! -f "$current_download_file" ] && log "And already downloading" && exit 1
+log "Starting download of current stream from the beginning"
 
 # Getting channel's last stream data
 raw_data=$(./twitch api get /videos -q type=archive -q first=1 -q user_id=$user_id)
