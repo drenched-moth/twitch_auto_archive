@@ -3,13 +3,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-LOGFILE="$SCRIPT_DIR/$CHANNEL.log"
-exec >>"$LOGFILE" 2>&1
-
-SCRIPT_NAME=$(basename "$0")
-source "$(dirname "$0")/log.sh"
-
-
 CHANNEL="${1:-}"
 UPLOAD_CHANNEL="${2:-}"
 OUTPUT_PATH="${3:-}"
@@ -18,6 +11,13 @@ if [ -z "$CHANNEL" ] || [ -z "$OUTPUT_PATH" ] || [ -z "$UPLOAD_CHANNEL" ]; then
     echo "Usage: $0 <channel_name> <upload_channel_name> <output_path>"
     exit 1
 fi
+
+LOGFILE="$SCRIPT_DIR/$CHANNEL.log"
+exec >>"$LOGFILE" 2>&1
+
+SCRIPT_NAME=$(basename "$0")
+source "$(dirname "$0")/log.sh"
+
 
 log "Starting archive pipeline for $CHANNEL"
 log "Using temporary directory $tmpdir for intermediate files"
