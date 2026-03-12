@@ -67,7 +67,8 @@ log "ID=$video_id"
 filename=$(~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --print filename --progress-delta 15 --newline -o "$tmpdir/video.%(ext)s")
 ext="${filename##*.}"
 echo "$channel" > "$current_download_file"
-~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --live-from-start --progress-delta 15 --no-part --newline --verbose -o "$tmpdir/video.%(ext)s" 
+# ~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --live-from-start --progress-delta 15 --no-part --newline --verbose -o "$tmpdir/video.%(ext)s" 
+~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --live-from-start --progress-delta 15 --no-part --newline -o "$tmpdir/video.%(ext)s" 
 echo "$video_id" > last_video_id 
 # echo "$data" > "$archive_dir/metadata.json"
 echo "$data" > "$tmpdir/metadata.json"
