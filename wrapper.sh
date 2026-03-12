@@ -39,7 +39,7 @@ creation_date=$(echo $data | jq -r '.created_at | split("T")[0]')
 # upload
 log "Uploading VOD"
 # "$SCRIPT_DIR/upload-vod.sh" "$CHANNEL"
-./youtube-upload -filename "$tmpdir/video."* -secrets "$SCRIPT_DIR/client_secrets_$UPLOAD_CHANNEL.json" -cache "$SCRIPT_DIR/request_$UPLOAD_CHANNEL.token" -title "$title - $creation_date" -description "Archived Twitch stream from $creation_date with id $video_id"
+./youtubeuploader -filename "$tmpdir/video."* -secrets "$SCRIPT_DIR/client_secrets_$UPLOAD_CHANNEL.json" -cache "$SCRIPT_DIR/request_$UPLOAD_CHANNEL.token" -title "$title - $creation_date" -description "Archived Twitch stream from $creation_date with id $video_id"
 
 log "Upload finished"
 

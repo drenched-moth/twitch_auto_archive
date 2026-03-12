@@ -77,4 +77,4 @@ rm -f "$current_download_file"
 
 log "All data in $tmpdir"
 
-trap cleanup EXIT
+#trap cleanup EXIT
