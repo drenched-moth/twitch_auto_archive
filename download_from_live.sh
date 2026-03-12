@@ -56,8 +56,8 @@ log "Title=$title"
 log "Date=$creation_date"
 log "ID=$video_id"
 
-[ ! -f last_video_id ] && echo 0 > last_video_id && log "Not any last video was detected"
-[ $(cat last_video_id) = $video_id ] && log "Last video detected is the same as last downloaded" && exit 1
+[ ! -f "$channel"_last_video_id ] && echo 0 > "$channel"_last_video_id && log "Not any last video was detected"
+[ $(cat "$channel"_last_video_id) = $video_id ] && log "Last video detected is the same as last downloaded" && exit 1
 
 
 # output_path="$output_path/$channel"
