@@ -2,9 +2,6 @@
 # pipefail arrête le script si cmd1 dans cmd1 | jq cause une erreur, évitant des comportement indet 
 set -euo pipefail
 
-cleanup() {
-	rm -rf "$tmpdir"
-}
 SCRIPT_NAME=$(basename "$0")
 source "$(dirname "$0")/log.sh"
 

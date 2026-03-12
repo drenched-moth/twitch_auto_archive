@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+log "Starting archive pipeline for $CHANNEL"
+log "Using temporary directory $tmpdir for intermediate files"
+tmpdir=$(mktemp -d -t twitch-archive-XXXXXX)
+
+cleanup() {
+    log "Cleaning up temporary directory"
+	rm -rf "$tmpdir"
+}
+
+trap cleanup EXIT
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 CHANNEL="${1:-}"
@@ -18,12 +29,6 @@ exec >>"$LOGFILE" 2>&1
 SCRIPT_NAME=$(basename "$0")
 source "$(dirname "$0")/log.sh"
 
-cleanup() {
-	rm -rf "$tmpdir"
-}
-
-log "Starting archive pipeline for $CHANNEL"
-tmpdir=$(mktemp -d -t twitch-archive-XXXXXX)
 
 # téléchargement
 log "Downloading latest VOD"
@@ -51,5 +56,3 @@ mkdir -p "$archive_dir"
 mv -v "$tmpdir/"* "$archive_dir/"
 
 log "Pipeline completed"
-
-trap cleanup EXIT
