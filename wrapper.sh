@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+LOGFILE="$SCRIPT_DIR/$CHANNEL.log"
+exec >>"$LOGFILE" 2>&1
+
+SCRIPT_NAME=$(basename "$0")
+source "$(dirname "$0")/log.sh"
+
+
 CHANNEL="${1:-}"
 UPLOAD_CHANNEL="${2:-}"
 OUTPUT_PATH="${3:-}"
@@ -21,14 +30,6 @@ cleanup() {
 
 trap cleanup EXIT
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-
-LOGFILE="$SCRIPT_DIR/$CHANNEL.log"
-exec >>"$LOGFILE" 2>&1
-
-SCRIPT_NAME=$(basename "$0")
-source "$(dirname "$0")/log.sh"
 
 
 # téléchargement
