@@ -8,6 +8,8 @@ cleanup() {
 SCRIPT_NAME=$(basename "$0")
 source "$(dirname "$0")/log.sh"
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 channel="${1:-}"
 output_path="${2:-}"
 tmpdir="${3:-}"
@@ -20,7 +22,7 @@ channel_info_file="id_$channel"
 if [ ! -f "$channel_info_file" ] ; then
 	log "Getting id of channel $channel"
 	# Getting id of channel (necessary for videos api call)
-	raw_data=$(./twitch api get /users -q login=$channel)
+	raw_data=$("$SCRIPT_DIR"/twitch api get /users -q login=$channel)
 	if echo "$raw_data" | jq -e 'isempty(.data[])' >/dev/null ; then
 		log "Error fetching user's id" 
 		exit 1
@@ -35,13 +37,13 @@ user_id=$(echo "$raw_data" | jq '.data[].id | tonumber')
 current_download_file="downloading_$user_id"
 
 # If currently live -> download
-[ $(./twitch api get /streams -q user_id=$user_id | jq 'isempty(.data[])') = true ] && log "Not currently streaming" && exit 1
+[ $("$SCRIPT_DIR"/twitch api get /streams -q user_id=$user_id | jq 'isempty(.data[])') = true ] && log "Not currently streaming" && exit 1
 log "Currently streaming"
 [ -f "$current_download_file" ] && log "Already downloading" && exit 1
 log "Starting download of current stream from the beginning"
 
 # Getting channel's last stream data
-raw_data=$(./twitch api get /videos -q type=archive -q first=1 -q user_id=$user_id)
+raw_data=$("$SCRIPT_DIR"/twitch api get /videos -q type=archive -q first=1 -q user_id=$user_id)
 if echo "$raw_data" | jq -e 'isempty(.data[])' >/dev/null ; then
 	log "Error fetching last stream's data"
 	exit 1
