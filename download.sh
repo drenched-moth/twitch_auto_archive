@@ -95,9 +95,10 @@ if [ "$LIVE_FROM_START" = true ]; then
         log "--live-from-start succeeded"
     else
         log "--live-from-start failed (unsupported or error), falling back to regular download"
-        ~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id \
-            -N 4 --progress-delta 15 --no-part --newline \
-            -o "$tmpdir/video.%(ext)s"
+		exit 1
+        # ~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id \
+        #     -N 4 --progress-delta 15 --no-part --newline \
+        #     -o "$tmpdir/video.%(ext)s"
     fi
 else
     ~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id \
