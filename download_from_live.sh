@@ -68,7 +68,7 @@ ext="${filename##*.}"
 echo "$channel" > "$current_download_file"
 # ~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --live-from-start --progress-delta 15 --no-part --newline --verbose -o "$tmpdir/video.%(ext)s" 
 ~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id --live-from-start --progress-delta 15 --no-part --newline -o "$tmpdir/video.%(ext)s" 
-echo "$video_id" > last_video_id 
+echo "$video_id" > "$last_video_id_file"
 # echo "$data" > "$archive_dir/metadata.json"
 echo "$data" > "$tmpdir/metadata.json"
 # mv "$filename" "$archive_dir/video.$ext" -v
