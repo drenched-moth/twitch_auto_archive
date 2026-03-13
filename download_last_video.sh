@@ -15,7 +15,7 @@ if [ -z "$channel" ] || [ -z "$output_path" ] || [ -z "$tmpdir" ]; then
 	exit 1
 fi
 
-channel_info_file="id_$channel"
+channel_info_file="$SCRIPT_DIR/id_$channel"
 if [ ! -f "$channel_info_file" ] ; then
 	log "Getting id of channel $channel"
 	# Getting id of channel (necessary for videos api call)
@@ -51,9 +51,9 @@ log "Title=$title"
 log "Date=$creation_date"
 log "ID=$video_id"
 
-[ ! -f "$channel"_last_video_id ] && echo 0 > "$channel"_last_video_id && log "Not any last video was detected"
-[ $(cat "$channel"_last_video_id) = $video_id ] && log "Last video detected is the same as last downloaded" && exit 1
-
+last_video_id_file="$SCRIPT_DIR/${channel}_last_video_id"
+[ ! -f "$last_video_id_file" ] && echo 0 > "$last_video_id_file" && log "Not any last video was detected"
+[ $(cat "$last_video_id_file") = $video_id ] && log "Last video detected is the same as last downloaded" && exit 1
 
 # output_path="$output_path/$channel"
 # archive_dir="$output_path/$creation_date""_$video_id"
