@@ -76,6 +76,7 @@ esac)
 
 # upload
 log "Uploading VOD"
+channel_link="https://twitch.tv/$CHANNEL"
 files_dir="$SCRIPT_DIR/script_files"
 upload_channel_dir="$files_dir/$UPLOAD_CHANNEL"
 mkdir -p "$upload_channel_dir"
@@ -84,7 +85,7 @@ UPLOAD_ARGS=(-quiet -filename "$tmpdir/video."* -secrets "$upload_channel_dir/cl
 META_JSON="$upload_channel_dir/meta.json"
 if [ -f "$META_JSON" ]; then
     log "Using custom metadata from $META_JSON"
-    resolved_desc=$(jq -r '.description' "$META_JSON" | jq -Rr --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$CHANNEL" 'gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c)')
+    resolved_desc=$(jq -r '.description' "$META_JSON" | jq -Rr --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c)')
     UPLOAD_ARGS+=(-description "$resolved_desc" -metaJSON "$META_JSON")
 else
     log "No custom metadata found, using default title and description"
