@@ -72,7 +72,6 @@ data=$(cat "$tmpdir/metadata.json")
 video_id=$(echo $data | jq '.id | tonumber')
 title=$(echo $data | jq -r '.title')
 creation_date=$(echo $data | jq -r '.created_at | split("T")[0]')
-# TODO: change creation_date format to be coherent with channel (e.g. 2024-06-30 -> 30.06.2024)
 creation_date_youtube=$(date -d "$creation_date" +"%d.%m.%Y")
 day_english=$(date -d "$creation_date" +"%A")
 day_french=$(case $day_english in
@@ -98,8 +97,6 @@ resolved_meta="$tmpdir/resolved_meta.json"
 if [ -f "$meta_json" ]; then
     log "Using custom metadata from $meta_json"
     jq --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'walk(if type == "string" then gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c) else . end)' "$meta_json" > "$resolved_meta"
-    # resolved_desc=$(jq -r '.description' "$meta_json" | jq -Rr --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c)')
-    # UPLOAD_ARGS+=(-description "$resolved_desc" -metaJSON "$meta_json")
     UPLOAD_ARGS+=(-metaJSON "$resolved_meta")
 else
     log "No custom metadata found, using default title and description"
@@ -116,7 +113,7 @@ fi
 log "Upload finished"
 
 log "Moving data to archive directory"
-
+rm "$resolved_meta"
 output_path="$OUTPUT_PATH/$CHANNEL"
 archive_dir="$output_path/$creation_date""_$video_id"
 mkdir -p "$archive_dir"
