@@ -58,8 +58,7 @@ trap cleanup EXIT
 log "Downloading latest VOD"
 DOWNLOAD_ARGS=("$CHANNEL" "$OUTPUT_PATH" "$tmpdir")
 if [ "$LIVE_FROM_START" = true ]; then
-    # DOWNLOAD_ARGS=(-l "${DOWNLOAD_ARGS[@]}")
-    DOWNLOAD_ARGS+=(-l)
+    DOWNLOAD_ARGS+=(-p)
 fi
 if [ "$LIVE_FROM_START" = true ]; then
     "$SCRIPT_DIR/download.sh" -l "${DOWNLOAD_ARGS[@]}"
