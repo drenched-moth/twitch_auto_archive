@@ -100,7 +100,7 @@ if [ -f "$meta_json" ]; then
     jq --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'walk(if type == "string" then gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c) else . end)' "$meta_json" > "$resolved_meta"
     # resolved_desc=$(jq -r '.description' "$meta_json" | jq -Rr --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c)')
     # UPLOAD_ARGS+=(-description "$resolved_desc" -metaJSON "$meta_json")
-    UPLOAD_ARGS+=(-metaJSON "$meta_json")
+    UPLOAD_ARGS+=(-metaJSON "$resolved_meta")
 else
     log "No custom metadata found, using default title and description"
     UPLOAD_ARGS+=(-description "VOD de $CHANNEL du $day_french $creation_date_youtube")
