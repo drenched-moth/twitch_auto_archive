@@ -8,6 +8,7 @@ source "$(dirname "$0")/log.sh"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 LIVE_FROM_START=false
+PRETEND_MODE=false
  
 usage() {
     echo "Usage: $0 [-l] <channel_name> <output_path> <tmpdir>"
