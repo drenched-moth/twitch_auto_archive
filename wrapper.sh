@@ -8,12 +8,14 @@ LIVE_FROM_START=false
 usage() {
     echo "Usage: $0 [-l] <channel_name> <upload_channel_name> <output_path>"
     echo "  -l    Download live stream from the beginning (live-from-start mode)"
+    echo "  -p    Do not download or upload, but prints and create files (pretend mode)"
     exit 1
 }
  
-while getopts ":l" opt; do
+while getopts ":lp" opt; do
     case $opt in
         l) LIVE_FROM_START=true ;;
+        p) PRETEND_MODE=true ;;
         *) usage ;;
     esac
 done
@@ -51,6 +53,10 @@ trap cleanup EXIT
 log "Downloading latest VOD"
 DOWNLOAD_ARGS=("$CHANNEL" "$OUTPUT_PATH" "$tmpdir")
 if [ "$LIVE_FROM_START" = true ]; then
+    # DOWNLOAD_ARGS=(-l "${DOWNLOAD_ARGS[@]}")
+    DOWNLOAD_ARGS+=(-l)
+fi
+if [ "$LIVE_FROM_START" = true ]; then
     "$SCRIPT_DIR/download.sh" -l "${DOWNLOAD_ARGS[@]}"
 else
     "$SCRIPT_DIR/download.sh" "${DOWNLOAD_ARGS[@]}"
@@ -82,14 +88,21 @@ upload_channel_dir="$files_dir/$UPLOAD_CHANNEL"
 mkdir -p "$upload_channel_dir"
 UPLOAD_ARGS=(-quiet -filename "$tmpdir/video."* -secrets "$upload_channel_dir/client_secrets.json" -cache "$upload_channel_dir/request.token" -title "$title - $creation_date_youtube" -recordingDate "$creation_date" -metaJSONout "$tmpdir/meta.out.json")
 
-META_JSON="$upload_channel_dir/meta.json"
-if [ -f "$META_JSON" ]; then
-    log "Using custom metadata from $META_JSON"
-    resolved_desc=$(jq -r '.description' "$META_JSON" | jq -Rr --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c)')
-    UPLOAD_ARGS+=(-description "$resolved_desc" -metaJSON "$META_JSON")
+meta_json="$upload_channel_dir/meta.json"
+resolved_meta="$tmpdir/resolved_meta.json"
+if [ -f "$meta_json" ]; then
+    log "Using custom metadata from $meta_json"
+    "$resolved_meta" < jq "$meta_json" --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'walk(if type == "string" then gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c) else . end)'
+    # resolved_desc=$(jq -r '.description' "$meta_json" | jq -Rr --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c)')
+    # UPLOAD_ARGS+=(-description "$resolved_desc" -metaJSON "$meta_json")
+    UPLOAD_ARGS+=(-metaJSON "$meta_json")
 else
     log "No custom metadata found, using default title and description"
     UPLOAD_ARGS+=(-description "VOD de $CHANNEL du $day_french $creation_date_youtube")
+fi
+if [ "$PRETEND_MODE" = true ]; then
+    log "Pretend mode enabled, skipping actual upload"
+    exit 0
 fi
 "$SCRIPT_DIR"/youtubeuploader "${UPLOAD_ARGS[@]}"
 

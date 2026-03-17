@@ -12,13 +12,15 @@ LIVE_FROM_START=false
 usage() {
     echo "Usage: $0 [-l] <channel_name> <output_path> <tmpdir>"
     echo "  -l    Require live stream and download from the beginning."
+    echo "  -p    Do not download, but prints and create files (pretend mode)."
     echo "        Falls back to regular download if --live-from-start is unsupported."
     exit 1
 }
  
-while getopts ":l" opt; do
+while getopts ":lp" opt; do
     case $opt in
         l) LIVE_FROM_START=true ;;
+        p) PRETEND_MODE=true ;;
         *) usage ;;
     esac
 done
@@ -87,6 +89,13 @@ last_video_id_file="$channel_dir/last_video_id"
 
 touch "$current_download_file"
 
+if [ "$PRETEND_MODE" = true ]; then
+    log "Pretend mode enabled, skipping actual download"
+    echo "$data" > "$tmpdir/metadata.json"
+    rm -f "$current_download_file"
+    log "All data in $tmpdir"
+    exit 0
+fi
 if [ "$LIVE_FROM_START" = true ]; then
     log "Attempting download with --live-from-start"
     if ~/.local/bin/yt-dlp https://twitch.tv/videos/$video_id \
