@@ -60,6 +60,7 @@ DOWNLOAD_ARGS=("$CHANNEL" "$OUTPUT_PATH" "$tmpdir")
 if [ "$LIVE_FROM_START" = true ]; then
     DOWNLOAD_ARGS+=(-p)
 fi
+log "Download arguments: ${DOWNLOAD_ARGS[*]}"
 if [ "$LIVE_FROM_START" = true ]; then
     "$SCRIPT_DIR/download.sh" -l "${DOWNLOAD_ARGS[@]}"
 else
