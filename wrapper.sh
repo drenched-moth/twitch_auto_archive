@@ -97,7 +97,7 @@ meta_json="$upload_channel_dir/meta.json"
 resolved_meta="$tmpdir/resolved_meta.json"
 if [ -f "$meta_json" ]; then
     log "Using custom metadata from $meta_json"
-    "$resolved_meta" < jq "$meta_json" --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'walk(if type == "string" then gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c) else . end)'
+    jq --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'walk(if type == "string" then gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c) else . end)' "$meta_json" > "$resolved_meta"
     # resolved_desc=$(jq -r '.description' "$meta_json" | jq -Rr --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c)')
     # UPLOAD_ARGS+=(-description "$resolved_desc" -metaJSON "$meta_json")
     UPLOAD_ARGS+=(-metaJSON "$meta_json")
