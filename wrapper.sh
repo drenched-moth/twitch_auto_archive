@@ -57,7 +57,7 @@ trap cleanup EXIT
 # téléchargement
 log "Downloading latest VOD"
 DOWNLOAD_ARGS=("$CHANNEL" "$OUTPUT_PATH" "$tmpdir")
-if [ "$LIVE_FROM_START" = true ]; then
+if [ "$PRETEND_MODE" = true ]; then
     DOWNLOAD_ARGS=(-p "$DOWNLOAD_ARGS[@]")
 fi
 log "Download arguments: ${DOWNLOAD_ARGS[*]}"
