@@ -39,7 +39,11 @@ source "$(dirname "$0")/log.sh"
 
 log "Starting archive pipeline for $CHANNEL, upload channel: $UPLOAD_CHANNEL, live from start: $LIVE_FROM_START"
 tmpdir=$(mktemp -d -t twitch-archive-XXXXXX)
+tmpdir_final=$(mktemp -d -t twitch-archive-XXXXXX)
 log "Using temporary directory $tmpdir for intermediate files"
+if [ "$PRETEND_MODE" = true ]; then
+    log "Pretend mode enabled, using $tmpdir_final for final files"
+fi
 
 cleanup() {
     log "Cleaning up temporary directory"
@@ -102,6 +106,8 @@ else
 fi
 if [ "$PRETEND_MODE" = true ]; then
     log "Pretend mode enabled, skipping actual upload"
+    mv -v "$tmpdir/"* "$tmpdir_final/"
+    log "Files created in $tmpdir_final, not deleted after script completion"
     exit 0
 fi
 "$SCRIPT_DIR"/youtubeuploader "${UPLOAD_ARGS[@]}"
