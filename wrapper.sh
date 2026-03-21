@@ -90,7 +90,7 @@ channel_link="https://twitch.tv/$CHANNEL"
 files_dir="$SCRIPT_DIR/script_files"
 upload_channel_dir="$files_dir/$UPLOAD_CHANNEL"
 mkdir -p "$upload_channel_dir"
-UPLOAD_ARGS=(-quiet -filename "$tmpdir/video."* -secrets "$upload_channel_dir/client_secrets.json" -cache "$upload_channel_dir/request.token" -title "$title - $creation_date_youtube" -recordingDate "$creation_date" -metaJSONout "$tmpdir/meta.out.json")
+UPLOAD_ARGS=(-quiet -filename "$tmpdir/video."* -secrets "$files_dir/client_secrets.json" -cache "$upload_channel_dir/request.token" -title "$title - $creation_date_youtube" -recordingDate "$creation_date" -metaJSONout "$tmpdir/meta.out.json")
 
 meta_json="$upload_channel_dir/meta.json"
 resolved_meta="$tmpdir/resolved_meta.json"
