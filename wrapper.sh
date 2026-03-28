@@ -5,18 +5,21 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 LIVE_FROM_START=false
 PRETEND_MODE=false
+TRIM_SECONDS=0
  
 usage() {
-    echo "Usage: $0 [-l] <channel_name> <upload_channel_name> <output_path>"
-    echo "  -l    Download live stream from the beginning (live-from-start mode)"
-    echo "  -p    Do not download or upload, but prints and create files (pretend mode)"
+    echo "Usage: $0 [-l] [-p] [-t <seconds>] <channel_name> <upload_channel_name> <output_path>"
+    echo "  -l             Download live stream from the beginning (live-from-start mode)"
+    echo "  -p             Do not download or upload, but prints and create files (pretend mode)"
+    echo "  -t <seconds>   Also upload a trimmed version with the first N seconds removed"
     exit 1
 }
  
-while getopts ":lp" opt; do
+while getopts ":lpt:" opt; do
     case $opt in
         l) LIVE_FROM_START=true ;;
         p) PRETEND_MODE=true ;;
+        t) TRIM_SECONDS="$OPTARG" ;;
         *) usage ;;
     esac
 done
@@ -90,33 +93,78 @@ channel_link="https://twitch.tv/$CHANNEL"
 files_dir="$SCRIPT_DIR/script_files"
 upload_channel_dir="$files_dir/$UPLOAD_CHANNEL"
 mkdir -p "$upload_channel_dir"
-UPLOAD_ARGS=(-quiet -filename "$tmpdir/video."* -secrets "$files_dir/client_secrets.json" -cache "$upload_channel_dir/request.token" -recordingDate "$creation_date" -metaJSONout "$tmpdir/meta.out.json")
 
 meta_json="$upload_channel_dir/meta.json"
+
+# Helper: resolve metadata template to a given output path
+resolve_meta() {
+    local out_path="$1"
+    if [ -f "$meta_json" ]; then
+        jq --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" \
+            'walk(if type == "string" then gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c) else . end)' \
+            "$meta_json" > "$out_path"
+    fi
+}
+ 
+UPLOAD_ARGS_BASIS=(-quiet -secrets "$files_dir/client_secrets.json" -cache "$upload_channel_dir/request.token" -recordingDate "$creation_date")
+
+# --- Upload full version ---
+log "Uploading full VOD"
 resolved_meta="$tmpdir/resolved_meta.json"
-if [ -f "$meta_json" ]; then
-    log "Using custom metadata from $meta_json"
-    jq --arg t "$title" --arg d "$creation_date_youtube" --arg f "$day_french" --arg c "$channel_link" 'walk(if type == "string" then gsub("{{title}}"; $t) | gsub("{{date}}"; $d) | gsub("{{day}}"; $f) | gsub("{{channel}}"; $c) else . end)' "$meta_json" > "$resolved_meta"
-    UPLOAD_ARGS+=(-metaJSON "$resolved_meta")
-else
-    log "No custom metadata found, using default title and description"
-    UPLOAD_ARGS+=(-description "VOD de $CHANNEL du $day_french $creation_date_youtube" -title "$title - $creation_date_youtube")
-fi
+resolve_meta "$resolved_meta"
+full_video_file=$(echo "$tmpdir/video."*)
+ 
 if [ "$PRETEND_MODE" = true ]; then
-    log "Pretend mode enabled, skipping actual upload"
+    log "Pretend mode: skipping full upload"
+else
+    UPLOAD_ARGS=("${UPLOAD_ARGS_BASIS[@]}" -filename "$full_video_file" -metaJSONout "$tmpdir/meta.out.json")
+    if [ -f "$meta_json" ]; then
+        UPLOAD_ARGS+=(-metaJSON "$resolved_meta")
+    else
+        UPLOAD_ARGS+=(-description "VOD de $CHANNEL du $day_french $creation_date_youtube" -title "$title - $creation_date_youtube")
+    fi
+    "$SCRIPT_DIR"/youtubeuploader "${UPLOAD_ARGS[@]}"
+    log "Full upload finished"
+fi
+
+# --- Trimmed version ---
+if [ "$TRIM_SECONDS" -gt 0 ] 2>/dev/null; then
+    video_ext="${full_video_file##*.}"
+    trimmed_video_file="$tmpdir/video_trimmed.$video_ext"
+    trim_label=" [sans intro]"
+ 
+    log "Trimming first ${TRIM_SECONDS}s with ffmpeg (stream copy, no re-encode)"
+    ffmpeg -ss "$TRIM_SECONDS" -i "$full_video_file" -c copy "$trimmed_video_file"
+    log "Trim complete: $trimmed_video_file"
+ 
+    log "Uploading trimmed VOD"
+    if [ "$PRETEND_MODE" = true ]; then
+        log "Pretend mode: skipping trimmed upload"
+    else
+        UPLOAD_ARGS_TRIMMED=("${UPLOAD_ARGS_BASIS[@]}" -filename "$trimmed_video_file")
+        if [ -f "$meta_json" ]; then
+            UPLOAD_ARGS_TRIMMED+=(-metaJSON "$resolved_meta")
+        else
+            UPLOAD_ARGS_TRIMMED+=(-description "VOD de $CHANNEL du $day_french $creation_date_youtube${trim_label}" -title "$title - $creation_date_youtube${trim_label}")
+        fi
+        "$SCRIPT_DIR"/youtubeuploader "${UPLOAD_ARGS_TRIMMED[@]}"
+        log "Trimmed upload finished"
+    fi
+fi
+
+# --- Move full VOD + metadata to local archive (trimmed version not archived) ---
+if [ "$PRETEND_MODE" = true ]; then
+    log "Pretend mode enabled, moving files to $tmpdir_final"
     mv -v "$tmpdir/"* "$tmpdir_final/"
-    log "Files created in $tmpdir_final, not deleted after script completion"
+    log "Files in $tmpdir_final, not deleted after script completion"
     exit 0
 fi
-"$SCRIPT_DIR"/youtubeuploader "${UPLOAD_ARGS[@]}"
-
-log "Upload finished"
-
+ 
 log "Moving data to archive directory"
-rm "$resolved_meta"
+rm -f "$tmpdir/resolved_meta.json" "$tmpdir/video_trimmed."*
 output_path="$OUTPUT_PATH/$CHANNEL"
 archive_dir="$output_path/$creation_date""_$video_id"
 mkdir -p "$archive_dir"
 mv -v "$tmpdir/"* "$archive_dir/"
-
+ 
 log "Pipeline completed"
