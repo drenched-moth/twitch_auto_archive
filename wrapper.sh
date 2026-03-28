@@ -134,7 +134,7 @@ if [ "$TRIM_SECONDS" -gt 0 ] 2>/dev/null; then
     trim_label=" [sans intro]"
  
     log "Trimming first ${TRIM_SECONDS}s with ffmpeg (stream copy, no re-encode)"
-    ffmpeg -ss "$TRIM_SECONDS" -i "$full_video_file" -c copy "$trimmed_video_file"
+    ffmpeg -loglevel warning -ss "$TRIM_SECONDS" -i "$full_video_file" -c copy "$trimmed_video_file"
     log "Trim complete: $trimmed_video_file"
  
     log "Uploading trimmed VOD"
