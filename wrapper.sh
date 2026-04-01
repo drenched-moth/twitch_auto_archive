@@ -119,6 +119,18 @@ resolve_meta() {
     fi
 }
 
+french_day() {
+    case "$1" in
+        Monday)    echo "lundi"    ;;
+        Tuesday)   echo "mardi"    ;;
+        Wednesday) echo "mercredi" ;;
+        Thursday)  echo "jeudi"    ;;
+        Friday)    echo "vendredi" ;;
+        Saturday)  echo "samedi"   ;;
+        Sunday)    echo "dimanche" ;;
+    esac
+}
+
 # ── Process each VOD ──────────────────────────────────────────────────────────
 for i in $(seq 0 $((new_count - 1))); do
     data=$(echo "$new_videos" | jq ".[$i]")
@@ -127,15 +139,7 @@ for i in $(seq 0 $((new_count - 1))); do
     creation_date=$(echo "$data" | jq -r '.created_at | split("T")[0]')
     creation_date_youtube=$(date -d "$creation_date" +"%d.%m.%Y")
     day_english=$(date -d "$creation_date" +"%A")
-    day_french=$(case $day_english in
-        Monday)    echo "lundi"    ;;
-        Tuesday)   echo "mardi"    ;;
-        Wednesday) echo "mercredi" ;;
-        Thursday)  echo "jeudi"    ;;
-        Friday)    echo "vendredi" ;;
-        Saturday)  echo "samedi"   ;;
-        Sunday)    echo "dimanche" ;;
-    esac)
+    day_french=$(french_day "$day_english")
     channel_link="https://twitch.tv/$CHANNEL"
 
     log "── Processing VOD $video_id: $title ($creation_date) ──"
