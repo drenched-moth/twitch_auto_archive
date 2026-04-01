@@ -97,7 +97,7 @@ fi
 
 # ── Filter out already-archived VODs ──────────────────────────────────────────
 new_videos=$(echo "$raw_videos" | jq --slurpfile seen "$archived_video_ids_file" '
-    [ .data[] | select(.id as $id | $seen[0] | index($id) == null) ]
+    [ .data[] | select(.id as $id | $seen[0] | index($id) == null) ] | reverse
 ')
 
 new_count=$(echo "$new_videos" | jq 'length')
