@@ -38,16 +38,17 @@ exec >>"$LOGFILE" 2>&1
 
 source "$(dirname "$0")/log.sh"
 
+files_dir="$SCRIPT_DIR/script_files"
+channel_dir="$files_dir/$CHANNEL"
+mkdir -p "$channel_dir"
+
 # ── Single-instance lock — prevents concurrent cron runs ───────────────────────
-exec 9>"$SCRIPT_DIR/$CHANNEL.lock"
+exec 9>"$channel_dir/lock.lock"
 if ! flock -n 9; then
     log "Another instance is already running, exiting"
     exit 1
 fi
 
-files_dir="$SCRIPT_DIR/script_files"
-channel_dir="$files_dir/$CHANNEL"
-mkdir -p "$channel_dir"
 
 log "Starting archive pipeline for $CHANNEL, upload channel: $UPLOAD_CHANNEL"
 
