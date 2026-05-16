@@ -146,7 +146,7 @@ for i in $(seq 0 $((new_count - 1))); do
     channel_link="https://twitch.tv/$CHANNEL"
 
     log "── Processing VOD $video_id: $title ($creation_date) ──"
-
+    
     vod_tmpdir="$tmpdir/vod_$video_id"
     mkdir -p "$vod_tmpdir"
 
@@ -166,6 +166,12 @@ for i in $(seq 0 $((new_count - 1))); do
     # ── Upload full version ────────────────────────────────────────────────────
     resolved_meta="$vod_tmpdir/resolved_meta.json"
     resolve_meta "$title" "$creation_date_youtube" "$day_french" "$channel_link" "$resolved_meta"
+
+    # Check if resolved are valid
+    nb_char_title=$(cat "$resolved_meta" | jq -r '.title'  | wc -c)
+    if (( nb_char_title > 100)); then
+        resolve_meta "Title was too long" "$creation_date_youtube" "$day_french" "$channel_link" "$resolved_meta"
+    fi
 
     UPLOAD_ARGS_BASIS=(-quiet
         -secrets "$files_dir/client_secrets.json"
