@@ -58,6 +58,9 @@ log "Using temporary directory $tmpdir"
 
 cleanup() {
     log "Cleaning up temporary directory"
+    if [ -f $resolved_meta ]; then
+        cat $resolved_meta
+    fi
     rm -rf "$tmpdir"
 }
 trap cleanup EXIT
